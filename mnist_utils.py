@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 def load_mnist():
     from keras.datasets import mnist
     (x_train, y_train), (x_test, y_test) = mnist.load_data()
-    #x_train = x_train.astype("int64")
-    #x_test = x_test.astype("int64")
+    x_train = x_train.astype("int64")
+    x_test = x_test.astype("int64")
     return (x_train, y_train), (x_test, y_test)
 
 def split_by_label(dataset, labels):
