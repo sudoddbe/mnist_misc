@@ -43,36 +43,37 @@ def get_PCA_error(data, m, eigenvectors):
 
 
 
-(x_train, y_train), (x_val, y_val) = load_mnist()
-#x_train = x_train[0:10000,:]
-#y_train = y_train[0:10000]
-label_data_dict = split_by_label(x_train, y_train)
-images = [np.mean(d, axis = 0) for d in label_data_dict.values()]
-imshow_subplots(images)
-
-PCA_dict = {}
-errors = {}
-for k,v in label_data_dict.iteritems():
-    (m, eigenvectors) = PCA(v)
-    images = [e for e in eigenvectors]
-    images.append(m)
+if __name__=="__main__":
+    (x_train, y_train), (x_val, y_val) = load_mnist()
+    #x_train = x_train[0:10000,:]
+    #y_train = y_train[0:10000]
+    label_data_dict = split_by_label(x_train, y_train)
+    images = [np.mean(d, axis = 0) for d in label_data_dict.values()]
     imshow_subplots(images)
-    PCA_dict[k] = (m, eigenvectors)
-    error = get_PCA_error(x_val, m, eigenvectors)
-    errors[k] = error
 
-errors_vec = np.zeros((len(label_data_dict.keys()), len(error)))
-for k, v in errors.iteritems():
-    errors_vec[k] = v
+    PCA_dict = {}
+    errors = {}
+    for k,v in label_data_dict.iteritems():
+        (m, eigenvectors) = PCA(v)
+        images = [e for e in eigenvectors]
+        images.append(m)
+        imshow_subplots(images)
+        PCA_dict[k] = (m, eigenvectors)
+        error = get_PCA_error(x_val, m, eigenvectors)
+        errors[k] = error
 
-category = np.argmin(errors_vec, axis = 0)
-print np.mean(category == y_val)
-fail_ind = category != y_val
-failures = x_val[fail_ind, :]
-c_vec = category[fail_ind]
-for i in range(10):
-    plt.figure()
-    mnist_sample_imshow(failures[i])
-    c = c_vec[i]
-    plt.title("classified as %i"%c)
-plt.show()
+    errors_vec = np.zeros((len(label_data_dict.keys()), len(error)))
+    for k, v in errors.iteritems():
+        errors_vec[k] = v
+
+    category = np.argmin(errors_vec, axis = 0)
+    print np.mean(category == y_val)
+    fail_ind = category != y_val
+    failures = x_val[fail_ind, :]
+    c_vec = category[fail_ind]
+    for i in range(10):
+        plt.figure()
+        mnist_sample_imshow(failures[i])
+        c = c_vec[i]
+        plt.title("classified as %i"%c)
+    plt.show()

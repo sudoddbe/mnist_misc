@@ -23,15 +23,16 @@ def get_k_nearest_neighbour(training_data, training_labels, sample, k = 10):
     labels = training_labels[vote_index]
     return np.argmax(np.bincount(labels))
 
-(x_train, y_train), (x_val, y_val) = load_mnist()
-category = np.zeros_like(y_val)
-for i in range(x_val.shape[0]):
-    nn = get_nearest_neighbour(x_train, x_val[i])
-    category[i] = y_train[nn]
-    #label = get_k_nearest_neighbour(x_train_flat, y_train, x_val[i])
-    #category[i] = label 
-    if i % 100 == 0 and i is not 0:
-        print i
-        print np.mean(category[0:i] == y_val[0:i])
+if __name__=="__main__":
+    (x_train, y_train), (x_val, y_val) = load_mnist()
+    category = np.zeros_like(y_val)
+    for i in range(x_val.shape[0]):
+        nn = get_nearest_neighbour(x_train, x_val[i])
+        category[i] = y_train[nn]
+        #label = get_k_nearest_neighbour(x_train_flat, y_train, x_val[i])
+        #category[i] = label
+        if i % 100 == 0 and i is not 0:
+            print i
+            print np.mean(category[0:i] == y_val[0:i])
 
-print np.mean(category == y_val)
+    print np.mean(category == y_val)

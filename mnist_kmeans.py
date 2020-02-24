@@ -31,27 +31,28 @@ def kmeans_classification(data, cluster_dict):
     classification = np.array([cluster_dict.keys()[i] for i in classification_index])
     return classification
 
-(x_train, y_train), (x_val, y_val) = load_mnist()
-#x_train = x_train[0:10000,:]
-#y_train = y_train[0:10000]
-label_data_dict = split_by_label(x_train, y_train)
+if __name__=="__main__":
+    (x_train, y_train), (x_val, y_val) = load_mnist()
+    #x_train = x_train[0:10000,:]
+    #y_train = y_train[0:10000]
+    label_data_dict = split_by_label(x_train, y_train)
 
-cluster_dict = {key: kmeans_clustering(val, k = 15) for key, val in label_data_dict.iteritems()}
-images = []
-for i in range(10):
-    images.append(cluster_dict[i])
-images = np.array(images).reshape(-1, MNIST_IMAGE_SIZE[0], MNIST_IMAGE_SIZE[1])
-imshow_subplots(images)
+    cluster_dict = {key: kmeans_clustering(val, k = 15) for key, val in label_data_dict.iteritems()}
+    images = []
+    for i in range(10):
+        images.append(cluster_dict[i])
+    images = np.array(images).reshape(-1, MNIST_IMAGE_SIZE[0], MNIST_IMAGE_SIZE[1])
+    imshow_subplots(images)
 
-classification = kmeans_classification(x_val, cluster_dict)
-print np.mean(classification == y_val)
-fail_ind = classification != y_val
-failures = x_val[fail_ind, :]
-c_vec = classification[fail_ind]
-for i in range(10):
-    plt.figure()
-    mnist_sample_imshow(failures[i])
-    c = c_vec[i]
-    plt.title("classified as %i"%c)
+    classification = kmeans_classification(x_val, cluster_dict)
+    print np.mean(classification == y_val)
+    fail_ind = classification != y_val
+    failures = x_val[fail_ind, :]
+    c_vec = classification[fail_ind]
+    for i in range(10):
+        plt.figure()
+        mnist_sample_imshow(failures[i])
+        c = c_vec[i]
+        plt.title("classified as %i"%c)
 
-plt.show()
+    plt.show()
