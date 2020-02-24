@@ -3,11 +3,11 @@ import matplotlib.pyplot as plt
 from mnist_utils import *
 
 def kmeans_clustering(data, k = 3, max_iter = 100):
-    clusters = data[np.random.randint(data.shape[0], size=k),:,:].copy()
+    clusters = data[np.random.randint(data.shape[0], size=k),:]
     dist2 = np.zeros((data.shape[0], k))
     for _ in range(max_iter):
         for i, cluster in enumerate(clusters):
-            dist2[:,i] = np.sum((data.reshape(data.shape[0], -1) - cluster.flatten())**2, axis=-1)
+            dist2[:,i] = np.sum((data - cluster)**2, axis=-1)
 
         closest_cluster = np.argmin(dist2, axis = -1)
         new_clusters = np.array([np.mean(data[closest_cluster == i], axis = 0) for i in range(k)])
@@ -24,7 +24,7 @@ def kmeans_classification(data, cluster_dict):
     for i, clusters in enumerate(cluster_dict.values()):
         tmpdist2 = np.zeros((data.shape[0], clusters.shape[0]))
         for ii, cluster in enumerate(clusters):
-            tmpdist2[:,ii] = np.sum((data.reshape(data.shape[0], -1) - cluster.flatten())**2, axis=-1)
+            tmpdist2[:,ii] = np.sum((data - cluster)**2, axis=-1)
         dist2[:,i] = np.amin(tmpdist2, axis=-1)
 
     classification_index = np.argmin(dist2, axis=-1)
@@ -32,7 +32,7 @@ def kmeans_classification(data, cluster_dict):
     return classification
 
 (x_train, y_train), (x_val, y_val) = load_mnist()
-#x_train = x_train[0:10000,:,:]
+#x_train = x_train[0:10000,:]
 #y_train = y_train[0:10000]
 label_data_dict = split_by_label(x_train, y_train)
 
@@ -40,17 +40,17 @@ cluster_dict = {key: kmeans_clustering(val, k = 15) for key, val in label_data_d
 images = []
 for i in range(10):
     images.append(cluster_dict[i])
-images = np.array(images).reshape((-1, x_train.shape[1], x_train.shape[2]))
+images = np.array(images).reshape(-1, MNIST_IMAGE_SIZE[0], MNIST_IMAGE_SIZE[1])
 imshow_subplots(images)
 
 classification = kmeans_classification(x_val, cluster_dict)
 print np.mean(classification == y_val)
 fail_ind = classification != y_val
-failures = x_val[fail_ind, :, :]
+failures = x_val[fail_ind, :]
 c_vec = classification[fail_ind]
 for i in range(10):
     plt.figure()
-    plt.imshow(failures[i])
+    mnist_sample_imshow(failures[i])
     c = c_vec[i]
     plt.title("classified as %i"%c)
 

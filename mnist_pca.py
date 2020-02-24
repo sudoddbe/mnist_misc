@@ -11,7 +11,7 @@ def PCA(data, number_eigenvectors = 15):
     m = np.mean(data, axis = 0)
     covariance_matrix = np.zeros((np.prod(m.shape), np.prod(m.shape))) 
     for sample in data:
-        tmp = (sample - m).flatten()
+        tmp = sample - m
         covariance_matrix += np.outer(tmp, tmp) 
 
 #We do not really need to divide by the number of samples - this is just a 
@@ -22,31 +22,20 @@ def PCA(data, number_eigenvectors = 15):
 #We want the largest eigenvalues, so sort and reverse... 
     ind = np.argsort(w)[::-1]
     v = v[:, ind]
+    v = v[:, 0:number_eigenvectors]
+    v = v.T
     w = w[ind]
 
-#Reshape eigenvectors which are currently 1 x N*N to N x N so we can view them 
-#as images again
-    eigenvectors = np.array([ v[:, i].reshape(m.shape) for i in range(number_eigenvectors)])
-    return m, eigenvectors
+    return m, v
 
 def get_PCA_error(data, m, eigenvectors):
-#Guarantee that data has three dimensions
-    tmp = data.copy()
-    if (len(data.shape) == 2):
-        tmp = np.array([data])
-    assert(len(tmp.shape) == 3)
-
-#Easier to do projection when we view images as vectors...
-    tmp = np.array([e.flatten() for e in tmp])
-    eig_tmp = np.array([e.flatten() for e in eigenvectors])
-    m_tmp = m.flatten()
-
+    tmp = data
 #Subtract mean
-    tmp = tmp - m_tmp
+    tmp = tmp - m
 
 #Project unto the eigenvectors
-    coeff = np.matmul(tmp, eig_tmp.T)
-    proj = np.matmul(coeff, eig_tmp)
+    coeff = np.matmul(tmp, eigenvectors.T)
+    proj = np.matmul(coeff, eigenvectors)
     
     diff = tmp - proj 
     error = np.sum(diff**2, axis = 1)
@@ -55,7 +44,7 @@ def get_PCA_error(data, m, eigenvectors):
 
 
 (x_train, y_train), (x_val, y_val) = load_mnist()
-#x_train = x_train[0:10000,:,:]
+#x_train = x_train[0:10000,:]
 #y_train = y_train[0:10000]
 label_data_dict = split_by_label(x_train, y_train)
 images = [np.mean(d, axis = 0) for d in label_data_dict.values()]
@@ -79,11 +68,11 @@ for k, v in errors.iteritems():
 category = np.argmin(errors_vec, axis = 0)
 print np.mean(category == y_val)
 fail_ind = category != y_val
-failures = x_val[fail_ind, :, :]
+failures = x_val[fail_ind, :]
 c_vec = category[fail_ind]
 for i in range(10):
     plt.figure()
-    plt.imshow(failures[i])
+    mnist_sample_imshow(failures[i])
     c = c_vec[i]
     plt.title("classified as %i"%c)
 plt.show()
